@@ -1208,20 +1208,22 @@ function getTransactionsData() {
         const TOTAL_WEEKS = 16;
 
         let state = {
-            transactions: JSON.parse(localStorage.getItem('kkn_transaksi')) || [
-                { id: 'TRX-101', tanggal: '2026-07-01', tipe: 'Pemasukan', kategori: 'Subsidi Universitas', keterangan: 'Dana Awal Kelompok KKN Kampus', inputor: 'Bendahara', nominal: 2500000, bukti: '' },
-                { id: 'TRX-102', tanggal: '2026-07-02', tipe: 'Pemasukan', kategori: 'Sponsor/Donatur', keterangan: 'Sponsorship dari Desa Binaan', inputor: 'Humas', nominal: 1000000, bukti: '' },
-                { id: 'TRX-103', tanggal: '2026-07-03', tipe: 'Pengeluaran', kategori: 'Divisi Acara', keterangan: 'Perlengkapan Pembukaan KKN & Banner', inputor: 'Divisi Acara', nominal: 350000, bukti: '' },
-                { id: 'TRX-104', tanggal: '2026-07-04', tipe: 'Pengeluaran', kategori: 'Divisi Konsumsi', keterangan: 'Konsumsi Rapat Perdana & DPL', inputor: 'Divisi Konsumsi', nominal: 200000, bukti: '' }
-            ],
+    transactions: JSON.parse(localStorage.getItem('kkn_transaksi')) || [],
             members: JSON.parse(localStorage.getItem('kkn_anggota')) || [
-                { id: 'M-01', nama: 'Budi Santoso', divisi: 'BPH (Ketua/Sekr/Bend)', payments: [true, true, true, false, false, false] },
-                { id: 'M-02', nama: 'Siti Rahma', divisi: 'Divisi Acara', payments: [true, true, false, false, false, false] },
-                { id: 'M-03', nama: 'Ahmad Rizky', divisi: 'Divisi Logistik', payments: [true, true, true, true, false, false] },
-                { id: 'M-04', nama: 'Dewi Lestari', divisi: 'Divisi Konsumsi', payments: [true, true, true, false, false, false] },
-                { id: 'M-05', nama: 'Fajar Nugraha', divisi: 'Divisi PDD', payments: [true, false, false, false, false, false] },
-                { id: 'M-06', nama: 'Nadia Putri', divisi: 'Divisi Humas', payments: [true, true, true, true, true, false] }
-            ],
+    { id: 'M-01', nama: 'Bintang Haykal', divisi: 'Ketua', payments: [false, false, false, false, false, false] },
+    { id: 'M-02', nama: 'Kaka Nugraha', divisi: 'Wakil Ketua', payments: [false, false, false, false, false, false] },
+    { id: 'M-03', nama: 'Hilma', divisi: 'Sekertaris', payments: [false, false, false, false, false, false] },
+    { id: 'M-04', nama: 'Reva', divisi: 'Sekertaris', payments: [false, false, false, false, false, false] },
+    { id: 'M-05', nama: 'Resti', divisi: 'Bendahara', payments: [false, false, false, false, false, false] },
+    { id: 'M-06', nama: 'Wulan', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
+    { id: 'M-07', nama: 'Halin', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
+    { id: 'M-08', nama: 'Tedi Firdaus', divisi: 'Divisi Humas', payments: [false, false, false, false, false, false] },
+    { id: 'M-09', nama: 'Fadli', divisi: 'Divisi Humas', payments: [false, false, false, false, false, false] },
+    { id: 'M-10', nama: 'Abdul Latif', divisi: 'Divisi Logistik', payments: [false, false, false, false, false, false] },
+    { id: 'M-11', nama: 'Asyiefa', divisi: 'Divisi Logistik', payments: [false, false, false, false, false, false] },
+    { id: 'M-12', nama: 'Adisti', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] },
+    { id: 'M-13', nama: 'Muhammad Fauzi', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] }
+],
             rab: JSON.parse(localStorage.getItem('kkn_rab')) || {
                 'Divisi Acara': 1200000,
                 'Divisi Konsumsi': 1500000,
