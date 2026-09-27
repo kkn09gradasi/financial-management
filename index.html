@@ -1276,69 +1276,159 @@ function getTransactionsData() {
     <!-- Custom Toast Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
 
+    <!-- Firebase SDK (Firestore + Storage) -->
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+
     <script>
-        // --- DATA INITIAL STATE (LOCALSTORAGE BACKED) ---
+        // =========================================================
+        // FIREBASE CONFIG
+        // Ganti nilai di bawah dengan Firebase Web App config Anda
+        // =========================================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDkRFOPT_zBrFPdUBns5GPn4J4NIkuI9zk",
+            authDomain: "kkn-gradasi09.firebaseapp.com",
+            projectId: "kkn-gradasi09",
+            storageBucket: "kkn-gradasi09.firebasestorage.app",
+            messagingSenderId: "728787973543",
+            appId: "1:728787973543:web:fad54574ab1b6803e83282"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        const KKN_DOC_PATH = "kkn_gradasi/keuangan_2026";
+
+        // --- DATA INITIAL STATE (FIREBASE BACKED) ---
         const DUES_PER_WEEK = 5000;
         const TOTAL_WEEKS = 16;
 
+        const DEFAULT_MEMBERS = [
+            { id: 'M-01', nama: 'Bintang Haykal', divisi: 'Ketua', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-02', nama: 'Kaka Nugraha', divisi: 'Wakil Ketua', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-03', nama: 'Hilma', divisi: 'Sekertaris', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-04', nama: 'Reva', divisi: 'Sekertaris', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-05', nama: 'Resti', divisi: 'Bendahara', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-06', nama: 'Wulan', divisi: 'Divisi Acara', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-07', nama: 'Halin', divisi: 'Divisi Acara', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-08', nama: 'Tedi Firdaus', divisi: 'Divisi Humas & Perizinan', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-09', nama: 'Fadli', divisi: 'Divisi Humas & Perizinan', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-10', nama: 'Abdul Latif', divisi: 'Divisi Logistik & Transportasi', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-11', nama: 'Asyiefa', divisi: 'Divisi Logistik & Transportasi', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-12', nama: 'Adisti', divisi: 'Divisi PDD', payments: Array(TOTAL_WEEKS).fill(false) },
+            { id: 'M-13', nama: 'Muhammad Fauzi', divisi: 'Divisi PDD', payments: Array(TOTAL_WEEKS).fill(false) }
+        ];
+
+        const DEFAULT_RAB = {
+            'Sekertaris': 0,
+            'Bendahara': 0,
+            'Divisi Acara': 0,
+            'Divisi Logistik & Transportasi': 0,
+            'Divisi PDD (Dokumentasi)': 0,
+            'Divisi Humas & Perizinan': 0,
+            'Biaya Makan & Minum': 0,
+            'Lain-lain': 0
+        };
+
         let state = {
-    transactions: JSON.parse(localStorage.getItem('kkn_transaksi')) || [],
-            members: JSON.parse(localStorage.getItem('kkn_anggota')) || [
-    { id: 'M-01', nama: 'Bintang Haykal', divisi: 'Ketua', payments: [false, false, false, false, false, false] },
-    { id: 'M-02', nama: 'Kaka Nugraha', divisi: 'Wakil Ketua', payments: [false, false, false, false, false, false] },
-    { id: 'M-03', nama: 'Hilma', divisi: 'Sekertaris', payments: [false, false, false, false, false, false] },
-    { id: 'M-04', nama: 'Reva', divisi: 'Sekertaris', payments: [false, false, false, false, false, false] },
-    { id: 'M-05', nama: 'Resti', divisi: 'Bendahara', payments: [false, false, false, false, false, false] },
-    { id: 'M-06', nama: 'Wulan', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
-    { id: 'M-07', nama: 'Halin', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
-    { id: 'M-08', nama: 'Tedi Firdaus', divisi: 'Divisi Humas & Perizinan', payments: [false, false, false, false, false, false] },
-    { id: 'M-09', nama: 'Fadli', divisi: 'Divisi Humas & Perizinan', payments: [false, false, false, false, false, false] },
-    { id: 'M-10', nama: 'Abdul Latif', divisi: 'Divisi Logistik & Transportasi', payments: [false, false, false, false, false, false] },
-    { id: 'M-11', nama: 'Asyiefa', divisi: 'Divisi Logistik & Transportasi', payments: [false, false, false, false, false, false] },
-    { id: 'M-12', nama: 'Adisti', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] },
-    { id: 'M-13', nama: 'Muhammad Fauzi', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] }
-],
-            rab: (() => {
-    const defaultRAB = {
-        'Sekertaris': 0,
-        'Bendahara': 0,
-        'Divisi Acara': 0,
-        'Divisi Logistik & Transportasi': 0,
-        'Divisi PDD (Dokumentasi)': 0,
-        'Divisi Humas & Perizinan': 0,
-        'Biaya Makan & Minum': 0,
-        'Lain-lain': 0
-    };
-
-    const savedRAB = JSON.parse(
-        localStorage.getItem('kkn_rab')
-    );
-
-    if (
-        savedRAB &&
-        typeof savedRAB === 'object' &&
-        Object.keys(savedRAB).length > 0
-    ) {
-        return savedRAB;
-    }
-
-    localStorage.setItem(
-        'kkn_rab',
-        JSON.stringify(defaultRAB)
-    );
-
-    return defaultRAB;
-})()            
+            transactions: [],
+            members: structuredClone(DEFAULT_MEMBERS),
+            rab: { ...DEFAULT_RAB }
         };
 
         let categoryChartInstance = null;
         let expenseChartInstance = null;
 
-        // Save State Helper
-        function saveData() {
-            localStorage.setItem('kkn_transaksi', JSON.stringify(state.transactions));
-            localStorage.setItem('kkn_anggota', JSON.stringify(state.members));
-            localStorage.setItem('kkn_rab', JSON.stringify(state.rab));
+        // =========================================================
+        // FIREBASE DATA HELPERS
+        // Semua data utama disimpan di Firestore, bukan localStorage.
+        // =========================================================
+        async function loadData() {
+            try {
+                const ref = db.doc(KKN_DOC_PATH);
+                const snap = await ref.get();
+
+                if (snap.exists) {
+                    const data = snap.data() || {};
+
+                    state.transactions = Array.isArray(data.transactions)
+                        ? data.transactions
+                        : [];
+
+                    state.members = Array.isArray(data.members) && data.members.length
+                        ? data.members
+                        : structuredClone(DEFAULT_MEMBERS);
+
+                    state.rab = data.rab && typeof data.rab === 'object'
+                        ? { ...DEFAULT_RAB, ...data.rab }
+                        : { ...DEFAULT_RAB };
+
+                    // Pastikan array pembayaran selalu 16 minggu.
+                    state.members = state.members.map(member => ({
+                        ...member,
+                        payments: Array.from(
+                            { length: TOTAL_WEEKS },
+                            (_, i) => Boolean(member.payments?.[i])
+                        )
+                    }));
+
+                    return;
+                }
+
+                // Dokumen belum ada: buat data awal di Firebase.
+                state = {
+                    transactions: [],
+                    members: structuredClone(DEFAULT_MEMBERS),
+                    rab: { ...DEFAULT_RAB }
+                };
+
+                await saveData();
+            } catch (error) {
+                console.error('Firebase loadData error:', error);
+                showToast('Gagal mengambil data dari Firebase.', 'error');
+                throw error;
+            }
+        }
+
+        async function saveData() {
+            try {
+                await db.doc(KKN_DOC_PATH).set({
+                    transactions: state.transactions,
+                    members: state.members,
+                    rab: state.rab,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+            } catch (error) {
+                console.error('Firebase saveData error:', error);
+                showToast('Gagal menyimpan data ke Firebase.', 'error');
+            }
+        }
+
+        // Upload foto bukti ke Firebase Storage.
+        async function uploadBuktiKeFirebase(file, transactionId) {
+            if (!file) return '';
+
+            if (!file.type.startsWith('image/')) {
+                throw new Error('File harus berupa gambar.');
+            }
+
+            const maxSize = 5 * 1024 * 1024;
+            if (file.size > maxSize) {
+                throw new Error('Ukuran foto maksimal 5 MB.');
+            }
+
+            const extension = (file.name.split('.').pop() || 'jpg').toLowerCase();
+            const path = `kkn-gradasi/bukti-transaksi/${transactionId}.${extension}`;
+            const ref = storage.ref(path);
+
+            await ref.put(file, {
+                contentType: file.type,
+                cacheControl: 'public,max-age=31536000'
+            });
+
+            return await ref.getDownloadURL();
         }
 
         // --- HELPER FORMATTING ---
@@ -1647,9 +1737,9 @@ function getTransactionsData() {
             renderTransactionsTable();
         }
 
-        function deleteTransaction(id) {
+        async function deleteTransaction(id) {
             state.transactions = state.transactions.filter(t => t.id !== id);
-            saveData();
+            await saveData();
             renderTransactionsTable();
             showToast('Transaksi berhasil dihapus');
         }
@@ -1709,18 +1799,18 @@ function getTransactionsData() {
             document.getElementById('kas-tunggakan-matrix').innerText = formatRupiah(targetTotal - totalCollected);
         }
 
-        function toggleKasPayment(memberIndex, weekIndex) {
+        async function toggleKasPayment(memberIndex, weekIndex) {
             state.members[memberIndex].payments[weekIndex] = !state.members[memberIndex].payments[weekIndex];
             
             // Otomatis tambahkan pencatatan transaksi kas jika diinginkan
-            saveData();
+            await saveData();
             renderKasMatrix();
             showToast('Status kas diperbarui');
         }
 
-        function deleteMember(idx) {
+        async function deleteMember(idx) {
             state.members.splice(idx, 1);
-            saveData();
+            await saveData();
             renderKasMatrix();
             showToast('Anggota berhasil dihapus');
         }
@@ -1836,7 +1926,7 @@ function closeModalEditRAB() {
 }
 
 
-function handleSaveRAB(e) {
+async function handleSaveRAB(e) {
     e.preventDefault();
 
     const inputs = document.querySelectorAll('[data-rab-divisi]');
@@ -1852,7 +1942,7 @@ function handleSaveRAB(e) {
 
     state.rab = newRAB;
 
-    saveData();
+    await saveData();
 
     closeModalEditRAB();
 
@@ -2028,8 +2118,9 @@ function handleSaveRAB(e) {
             document.getElementById('modal-transaksi').classList.add('hidden');
         }
 
-        function handleSaveTransaksi(e) {
+        async function handleSaveTransaksi(e) {
     e.preventDefault();
+
     const rincian = ambilRincianTransaksi();
     const totalRincian = hitungTotalRincian();
 
@@ -2047,55 +2138,53 @@ function handleSaveRAB(e) {
         showToast('Total transaksi harus lebih dari Rp 0.', 'error');
         return;
     }
+
     const tipe = document.getElementById('form-tipe').value;
     const tanggal = document.getElementById('form-tanggal').value;
     const kategori = document.getElementById('form-kategori').value;
-    const nominal = Number(document.getElementById('form-nominal').value);
     const keterangan = document.getElementById('form-keterangan').value;
     const inputor = document.getElementById('form-inputor').value;
-
     const fileInput = document.getElementById('form-bukti');
     const file = fileInput.files[0];
 
-    // Fungsi untuk menyimpan transaksi
-    function simpanTransaksi(buktiData) {
+    const transactionId = 'TRX-' + Date.now();
+
+    try {
+        const submitButton = document.querySelector('#form-transaksi button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i> Menyimpan...';
+        }
+
+        let buktiUrl = '';
+
+        if (file) {
+            buktiUrl = await uploadBuktiKeFirebase(file, transactionId);
+        }
 
         const newTx = {
-            id: 'TRX-' + new Date().getTime(),
+            id: transactionId,
             tanggal,
             tipe,
             kategori,
             keterangan,
             inputor: inputor || 'Bendahara',
-
-            // Total otomatis dari seluruh rincian
             nominal: totalRincian,
-
-            // Detail setiap item transaksi
-            rincian: rincian,
-
-            bukti: buktiData || ''
+            rincian,
+            bukti: buktiUrl
         };
 
         state.transactions.push(newTx);
-
-        saveData();
+        await saveData();
 
         closeModalTransaksi();
 
-        // Bersihkan preview
         const preview = document.getElementById('bukti-preview');
         const previewContainer = document.getElementById('bukti-preview-container');
 
-        if (preview) {
-            preview.src = '';
-        }
+        if (preview) preview.src = '';
+        if (previewContainer) previewContainer.classList.add('hidden');
 
-        if (previewContainer) {
-            previewContainer.classList.add('hidden');
-        }
-
-        // Re-render
         const activeTab = document.querySelector('.nav-tab.active');
 
         if (activeTab) {
@@ -2108,45 +2197,19 @@ function handleSaveRAB(e) {
             }
         }
 
-        showToast('Transaksi berhasil disimpan!');
+        showToast('Transaksi berhasil disimpan ke Firebase!');
+    } catch (error) {
+        console.error('Gagal menyimpan transaksi:', error);
+        showToast(error.message || 'Gagal menyimpan transaksi.', 'error');
+    } finally {
+        const submitButton = document.querySelector('#form-transaksi button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.innerHTML = 'Simpan Transaksi';
+        }
     }
-
-    // Kalau tidak ada foto
-    if (!file) {
-        simpanTransaksi('');
-        return;
-    }
-
-    // Validasi tipe file
-    if (!file.type.startsWith('image/')) {
-        showToast('File harus berupa gambar.', 'error');
-        return;
-    }
-
-    // Validasi ukuran file
-    // Maksimal 2 MB agar localStorage tidak cepat penuh
-    const maxSize = 2 * 1024 * 1024;
-
-    if (file.size > maxSize) {
-        showToast('Ukuran foto maksimal 2 MB.', 'error');
-        return;
-    }
-
-    // Convert foto menjadi Base64
-    const reader = new FileReader();
-
-    reader.onload = function(event) {
-        const buktiData = event.target.result;
-
-        simpanTransaksi(buktiData);
-    };
-
-    reader.onerror = function() {
-        showToast('Gagal membaca foto bukti.', 'error');
-    };
-
-    reader.readAsDataURL(file);
 }
+
 function previewBuktiFoto(event) {
     const file = event.target.files[0];
 
@@ -2172,10 +2235,10 @@ function previewBuktiFoto(event) {
     }
 
     // Maksimal 2 MB
-    const maxSize = 2 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
 
     if (file.size > maxSize) {
-        showToast('Ukuran foto maksimal 2 MB.', 'error');
+        showToast('Ukuran foto maksimal 5 MB.', 'error');
 
         event.target.value = '';
 
@@ -2237,7 +2300,7 @@ function closePreviewBukti() {
             document.getElementById('modal-anggota').classList.add('hidden');
         }
 
-        function handleSaveAnggota(e) {
+        async function handleSaveAnggota(e) {
             e.preventDefault();
             const nama = document.getElementById('form-nama-anggota').value;
             const divisi = document.getElementById('form-divisi-anggota').value;
@@ -2249,7 +2312,7 @@ function closePreviewBukti() {
                 payments: [false, false, false, false, false, false]
             });
 
-            saveData();
+            await saveData();
             closeModalAnggota();
             renderKasMatrix();
             showToast('Anggota baru ditambahkan');
@@ -2657,8 +2720,14 @@ function escapeHtmlLaporan(value) {
         }
 
         // Initial Load
-        window.addEventListener('DOMContentLoaded', () => {
-            renderDashboard();
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                await loadData();
+                renderDashboard();
+            } catch (error) {
+                console.error(error);
+                showToast('Aplikasi gagal memuat data Firebase.', 'error');
+            }
         });
         async function downloadLaporanPDF() {
 
