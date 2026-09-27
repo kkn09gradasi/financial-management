@@ -129,6 +129,68 @@
 </head>
 <body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col custom-scrollbar">
 
+    <!-- LOGIN SCREEN: Pilih Peran Bendahara / Anggota -->
+    <div id="login-screen" class="fixed inset-0 z-[100] bg-slate-900/95 flex items-center justify-center p-4 no-print">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
+            <div class="bg-brand-800 p-6 text-white text-center">
+                <div class="w-11 h-11 bg-white/10 rounded-xl border border-white/20 
+                            flex items-center justify-center overflow-hidden shrink-0">
+                    <img 
+                        src="kkn.jpeg" 
+                        alt="Logo KKN Gradasi"
+                        class="w-full h-full object-contain p-1.5"
+                    >
+                </div>
+                <h1 class="font-bold text-lg">KKN GRADASI 2026</h1>
+                <p class="text-xs text-brand-100 mt-1">Sistem Keuangan &mdash; Silakan masuk untuk melanjutkan</p>
+            </div>
+            <div class="p-6 space-y-4">
+                <!-- Pilihan Peran -->
+                <div id="login-role-select" class="space-y-3">
+                    <button type="button" onclick="selectLoginRole('bendahara')" class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-brand-500 hover:bg-brand-50 transition text-left">
+                        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-key"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-slate-800">Masuk sebagai Bendahara</p>
+                            <p class="text-xs text-slate-500">Akses penuh &middot; memerlukan PIN</p>
+                        </div>
+                    </button>
+                    <button type="button" onclick="loginAsAnggota()" class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition text-left">
+                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold text-sm text-slate-800">Masuk sebagai Anggota</p>
+                            <p class="text-xs text-slate-500">Tanpa PIN &middot; akses terbatas</p>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Form PIN Bendahara -->
+                <form id="login-pin-form" onsubmit="submitBendaharaPin(event)" class="hidden space-y-3">
+                    <button type="button" onclick="backToRoleSelect()" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1.5 font-medium">
+                        <i class="fa-solid fa-arrow-left"></i> Kembali
+                    </button>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Masukkan PIN Bendahara</label>
+                        <input type="password" id="login-pin-input" inputmode="numeric" autocomplete="off" required
+                            class="w-full px-4 py-3 text-center tracking-[0.5em] text-lg border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
+                    </div>
+                    <p id="login-pin-error" class="text-xs text-rose-600 font-semibold hidden">
+                        <i class="fa-solid fa-circle-exclamation"></i> PIN salah. Silakan coba lagi.
+                    </p>
+                    <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">
+                        <i class="fa-solid fa-right-to-bracket"></i> Masuk
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-shell" class="hidden flex flex-col min-h-screen w-full">
+
     <!-- Top Navigation Header -->
     <header class="bg-brand-800 text-white shadow-lg sticky top-0 z-30 no-print">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
@@ -178,6 +240,16 @@
                     <i class="fa-solid fa-scale-balanced"></i> <span class="hidden sm:inline">RAB</span>
                 </button>
             </nav>
+
+            <!-- Info Peran & Logout -->
+            <div class="flex items-center gap-2">
+                <span id="role-badge" class="hidden sm:flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-brand-900/60 border border-brand-600">
+                    <i class="fa-solid fa-user-shield"></i> <span id="role-badge-text">-</span>
+                </span>
+                <button onclick="logoutUser()" title="Keluar" class="w-9 h-9 flex items-center justify-center rounded-lg bg-brand-900/60 hover:bg-rose-600 border border-brand-600 transition text-white">
+                    <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                </button>
+            </div>
         </div>
     </header>
 
@@ -193,10 +265,10 @@
                     <p class="text-slate-500 text-sm mt-0.5">Monitoring pemasukan, pengeluaran, dan kas iuran harian/mingguan kelompok.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <button onclick="openModalTransaksi('Pemasukan')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-sm active:scale-95">
+                    <button id="btn-tambah-pemasukan-dash" onclick="openModalTransaksi('Pemasukan')" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-sm active:scale-95">
                         <i class="fa-solid fa-plus-circle"></i> Tambah Pemasukan
                     </button>
-                    <button onclick="openModalTransaksi('Pengeluaran')" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-sm active:scale-95">
+                    <button id="btn-catat-pengeluaran-dash" onclick="openModalTransaksi('Pengeluaran')" class="px-4 py-2.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl text-xs sm:text-sm font-semibold transition flex items-center gap-2 shadow-sm active:scale-95">
                         <i class="fa-solid fa-minus-circle"></i> Catat Pengeluaran
                     </button>
                     <button
@@ -352,10 +424,10 @@
                     <button onclick="exportCSV()" class="px-3.5 py-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-xl text-xs font-semibold border border-emerald-200 transition flex items-center gap-2">
                         <i class="fa-solid fa-file-csv"></i> Ekspor CSV
                     </button>
-                    <button onclick="openModalTransaksi('Pemasukan')" class="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition flex items-center gap-1.5">
+                    <button id="btn-tambah-pemasukan-tab" onclick="openModalTransaksi('Pemasukan')" class="px-3.5 py-2 bg-emerald-600 text-white rounded-xl text-xs font-semibold hover:bg-emerald-700 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-plus"></i> Pemasukan
                     </button>
-                    <button onclick="openModalTransaksi('Pengeluaran')" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-semibold hover:bg-rose-700 transition flex items-center gap-1.5">
+                    <button id="btn-catat-pengeluaran-tab" onclick="openModalTransaksi('Pengeluaran')" class="px-3.5 py-2 bg-rose-600 text-white rounded-xl text-xs font-semibold hover:bg-rose-700 transition flex items-center gap-1.5">
                         <i class="fa-solid fa-minus"></i> Pengeluaran
                     </button>
                 </div>
@@ -443,7 +515,7 @@
                     <p class="text-slate-500 text-sm mt-0.5">Pantau status pembayaran iuran rutin mingguan tiap anggota (Nominal: <span class="font-semibold text-slate-700">Rp 5.000 / minggu</span>).</p>
                 </div>
                 <div class="flex items-center gap-2">
-                    <button onclick="openModalTambahAnggota()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+                    <button id="btn-tambah-anggota" onclick="openModalTambahAnggota()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
                         <i class="fa-solid fa-user-plus"></i> Tambah Anggota
                     </button>
                 </div>
@@ -529,7 +601,7 @@
                     <h2 class="text-xl font-bold text-slate-800">Rencana Anggaran Biaya (RAB) vs Realisasi</h2>
                     <p class="text-slate-500 text-sm mt-0.5">Bandingkan pagu anggaran yang direncanakan dengan pengeluaran aktual per divisi.</p>
                 </div>
-                <button onclick="openModalEditRAB()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2">
+                <button id="btn-edit-rab" onclick="openModalEditRAB()" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-xl text-xs font-semibold transition flex items-center gap-2">
                     <i class="fa-solid fa-pen-to-square"></i> Edit Alokasi RAB
                 </button>
             </div>
@@ -659,6 +731,9 @@ function getTransactionsData() {
         </section>
 
     </main>
+
+    </div>
+    <!-- /#app-shell -->
 
     <!-- MODAL: Tambah/Edit Transaksi -->
     <div id="modal-transaksi" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
@@ -1349,6 +1424,131 @@ function getTransactionsData() {
         let expenseChartInstance = null;
 
         // =========================================================
+        // AUTENTIKASI & HAK AKSES (BENDAHARA vs ANGGOTA)
+        // =========================================================
+        // GANTI PIN INI SESUAI KEINGINAN ANDA (proteksi ini hanya di sisi
+        // tampilan/klien, bukan keamanan server yang sesungguhnya).
+        const BENDAHARA_PIN = "260926";
+
+        const ROLE_PERMISSIONS = {
+            bendahara: {
+                canAddTransaksi: true,
+                canDeleteTransaksi: true,
+                canManageAnggota: true,
+                canToggleKas: true,
+                canEditRAB: true
+            },
+            anggota: {
+                canAddTransaksi: false,
+                canDeleteTransaksi: false,
+                canManageAnggota: false,
+                canToggleKas: false,
+                canEditRAB: false
+            }
+        };
+
+        let currentRole = null;
+
+        function hasPermission(permKey) {
+            if (!currentRole) return false;
+            return Boolean(ROLE_PERMISSIONS[currentRole]?.[permKey]);
+        }
+
+        function isBendahara() {
+            return currentRole === 'bendahara';
+        }
+
+        function selectLoginRole(role) {
+            if (role === 'bendahara') {
+                document.getElementById('login-role-select').classList.add('hidden');
+                document.getElementById('login-pin-form').classList.remove('hidden');
+                document.getElementById('login-pin-error').classList.add('hidden');
+                document.getElementById('login-pin-input').value = '';
+                document.getElementById('login-pin-input').focus();
+            }
+        }
+
+        function backToRoleSelect() {
+            document.getElementById('login-pin-form').classList.add('hidden');
+            document.getElementById('login-role-select').classList.remove('hidden');
+        }
+
+        function submitBendaharaPin(e) {
+            e.preventDefault();
+            const pin = document.getElementById('login-pin-input').value.trim();
+
+            if (pin === BENDAHARA_PIN) {
+                doLogin('bendahara');
+            } else {
+                document.getElementById('login-pin-error').classList.remove('hidden');
+                document.getElementById('login-pin-input').value = '';
+                document.getElementById('login-pin-input').focus();
+            }
+        }
+
+        function loginAsAnggota() {
+            doLogin('anggota');
+        }
+
+        function doLogin(role) {
+            currentRole = role;
+            localStorage.setItem('kkn_role', role);
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+            applyRolePermissions();
+            startApp();
+        }
+
+        function logoutUser() {
+            currentRole = null;
+            localStorage.removeItem('kkn_role');
+            document.getElementById('app-shell').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-pin-form').classList.add('hidden');
+            document.getElementById('login-role-select').classList.remove('hidden');
+        }
+
+        function applyRolePermissions() {
+            const badge = document.getElementById('role-badge');
+            const badgeText = document.getElementById('role-badge-text');
+
+            if (isBendahara()) {
+                badgeText.textContent = 'Bendahara (Akses Penuh)';
+                badge.classList.remove('hidden');
+            } else {
+                badgeText.textContent = 'Anggota (Lihat Saja)';
+                badge.classList.remove('hidden');
+            }
+
+            const btnTambahAnggota = document.getElementById('btn-tambah-anggota');
+            const btnEditRAB = document.getElementById('btn-edit-rab');
+            const btnTambahPemasukanDash = document.getElementById('btn-tambah-pemasukan-dash');
+            const btnCatatPengeluaranDash = document.getElementById('btn-catat-pengeluaran-dash');
+            const btnTambahPemasukanTab = document.getElementById('btn-tambah-pemasukan-tab');
+            const btnCatatPengeluaranTab = document.getElementById('btn-catat-pengeluaran-tab');
+
+            if (btnTambahAnggota) {
+                btnTambahAnggota.classList.toggle('hidden', !hasPermission('canManageAnggota'));
+            }
+            if (btnEditRAB) {
+                btnEditRAB.classList.toggle('hidden', !hasPermission('canEditRAB'));
+            }
+            [btnTambahPemasukanDash, btnCatatPengeluaranDash, btnTambahPemasukanTab, btnCatatPengeluaranTab].forEach(btn => {
+                if (btn) btn.classList.toggle('hidden', !hasPermission('canAddTransaksi'));
+            });
+        }
+
+        async function startApp() {
+            try {
+                await loadData();
+                renderDashboard();
+            } catch (error) {
+                console.error(error);
+                showToast('Aplikasi gagal memuat data Firebase.', 'error');
+            }
+        }
+
+        // =========================================================
         // FIREBASE DATA HELPERS
         // Semua data utama disimpan di Firestore, bukan localStorage.
         // =========================================================
@@ -1723,9 +1923,13 @@ function getTransactionsData() {
     }
 </td>
                         <td class="py-3 px-4 text-center">
-                            <button onclick="deleteTransaction('${t.id}')" class="text-slate-400 hover:text-rose-600 p-1.5 transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
+                            ${
+                                isBendahara()
+                                ? `<button onclick="deleteTransaction('${t.id}')" class="text-slate-400 hover:text-rose-600 p-1.5 transition">
+                                        <i class="fa-solid fa-trash-can text-xs"></i>
+                                   </button>`
+                                : '<span class="text-slate-300 text-xs">-</span>'
+                            }
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -1745,6 +1949,10 @@ function getTransactionsData() {
         }
 
         async function deleteTransaction(id) {
+            if (!hasPermission('canDeleteTransaksi')) {
+                showToast('Anda tidak memiliki akses untuk menghapus transaksi.', 'error');
+                return;
+            }
             state.transactions = state.transactions.filter(t => t.id !== id);
             await saveData();
             renderTransactionsTable();
@@ -1771,9 +1979,10 @@ function getTransactionsData() {
                 let weekCheckboxesHtml = '';
                 for (let w = 0; w < TOTAL_WEEKS; w++) {
                     const isChecked = m.payments[w];
+                    const canToggle = hasPermission('canToggleKas');
                     weekCheckboxesHtml += `
                         <td class="py-3 px-2 text-center">
-                            <button onclick="toggleKasPayment(${mIdx}, ${w})" class="w-7 h-7 rounded-lg border flex items-center justify-center transition-all mx-auto ${isChecked ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' : 'bg-slate-100 border-slate-300 text-transparent hover:border-emerald-400'}">
+                            <button ${canToggle ? `onclick="toggleKasPayment(${mIdx}, ${w})"` : 'disabled'} class="w-7 h-7 rounded-lg border flex items-center justify-center transition-all mx-auto ${isChecked ? 'bg-emerald-500 border-emerald-600 text-white shadow-sm' : 'bg-slate-100 border-slate-300 text-transparent hover:border-emerald-400'} ${canToggle ? '' : 'opacity-60 cursor-not-allowed'}">
                                 <i class="fa-solid fa-check text-xs"></i>
                             </button>
                         </td>
@@ -1793,9 +2002,13 @@ function getTransactionsData() {
                     ${weekCheckboxesHtml}
                     <td class="py-3 px-4 text-xs text-right font-bold text-emerald-600">${formatRupiah(memberTotal)}</td>
                     <td class="py-3 px-4 text-center">
-                        <button onclick="deleteMember(${mIdx})" class="text-slate-400 hover:text-rose-600 transition p-1">
-                            <i class="fa-solid fa-user-minus text-xs"></i>
-                        </button>
+                        ${
+                            hasPermission('canManageAnggota')
+                            ? `<button onclick="deleteMember(${mIdx})" class="text-slate-400 hover:text-rose-600 transition p-1">
+                                    <i class="fa-solid fa-user-minus text-xs"></i>
+                               </button>`
+                            : '<span class="text-slate-300 text-xs">-</span>'
+                        }
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -1807,6 +2020,10 @@ function getTransactionsData() {
         }
 
         async function toggleKasPayment(memberIndex, weekIndex) {
+            if (!hasPermission('canToggleKas')) {
+                showToast('Anda tidak memiliki akses untuk mengubah status kas.', 'error');
+                return;
+            }
             state.members[memberIndex].payments[weekIndex] = !state.members[memberIndex].payments[weekIndex];
             
             // Otomatis tambahkan pencatatan transaksi kas jika diinginkan
@@ -1816,6 +2033,10 @@ function getTransactionsData() {
         }
 
         async function deleteMember(idx) {
+            if (!hasPermission('canManageAnggota')) {
+                showToast('Anda tidak memiliki akses untuk menghapus anggota.', 'error');
+                return;
+            }
             state.members.splice(idx, 1);
             await saveData();
             renderKasMatrix();
@@ -1877,6 +2098,11 @@ function getTransactionsData() {
         // --- EDIT ALOKASI RAB ---
 
 function openModalEditRAB() {
+    if (!hasPermission('canEditRAB')) {
+        showToast('Anda tidak memiliki akses untuk mengubah alokasi RAB.', 'error');
+        return;
+    }
+
     const modal = document.getElementById('modal-rab');
     const container = document.getElementById('rab-form-fields');
 
@@ -1935,6 +2161,11 @@ function closeModalEditRAB() {
 
 async function handleSaveRAB(e) {
     e.preventDefault();
+
+    if (!hasPermission('canEditRAB')) {
+        showToast('Anda tidak memiliki akses untuk mengubah alokasi RAB.', 'error');
+        return;
+    }
 
     const inputs = document.querySelectorAll('[data-rab-divisi]');
 
@@ -2128,6 +2359,11 @@ async function handleSaveRAB(e) {
         async function handleSaveTransaksi(e) {
     e.preventDefault();
 
+    if (!hasPermission('canAddTransaksi')) {
+        showToast('Anda tidak memiliki akses untuk menambah transaksi.', 'error');
+        return;
+    }
+
     const rincian = ambilRincianTransaksi();
     const totalRincian = hitungTotalRincian();
 
@@ -2299,6 +2535,10 @@ function closePreviewBukti() {
     image.src = '';
 }
         function openModalTambahAnggota() {
+            if (!hasPermission('canManageAnggota')) {
+                showToast('Anda tidak memiliki akses untuk menambah anggota.', 'error');
+                return;
+            }
             document.getElementById('form-anggota').reset();
             document.getElementById('modal-anggota').classList.remove('hidden');
         }
@@ -2309,6 +2549,12 @@ function closePreviewBukti() {
 
         async function handleSaveAnggota(e) {
             e.preventDefault();
+
+            if (!hasPermission('canManageAnggota')) {
+                showToast('Anda tidak memiliki akses untuk menambah anggota.', 'error');
+                return;
+            }
+
             const nama = document.getElementById('form-nama-anggota').value;
             const divisi = document.getElementById('form-divisi-anggota').value;
 
@@ -2726,15 +2972,18 @@ function escapeHtmlLaporan(value) {
             showToast('Kode Google Apps Script disalin!');
         }
 
-        // Initial Load
-        window.addEventListener('DOMContentLoaded', async () => {
-            try {
-                await loadData();
-                renderDashboard();
-            } catch (error) {
-                console.error(error);
-                showToast('Aplikasi gagal memuat data Firebase.', 'error');
+        // Initial Load: cek sesi login (peran) sebelum memuat data aplikasi
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedRole = localStorage.getItem('kkn_role');
+
+            if (savedRole === 'bendahara' || savedRole === 'anggota') {
+                currentRole = savedRole;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-shell').classList.remove('hidden');
+                applyRolePermissions();
+                startApp();
             }
+            // Jika belum ada sesi, layar login (default tampil) menunggu pilihan peran.
         });
         async function downloadLaporanPDF() {
 
