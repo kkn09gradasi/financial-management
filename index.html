@@ -1299,28 +1299,36 @@ function getTransactionsData() {
     { id: 'M-13', nama: 'Muhammad Fauzi', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] }
 ],
             rab: (() => {
-                const savedRAB = JSON.parse(localStorage.getItem('kkn_rab'));
+    const defaultRAB = {
+        'Sekertaris': 0,
+        'Bendahara': 0,
+        'Divisi Acara': 0,
+        'Divisi Logistik & Transportasi': 0,
+        'Divisi PDD (Dokumentasi)': 0,
+        'Divisi Humas & Perizinan': 0,
+        'Biaya Makan & Minum': 0,
+        'Lain-lain': 0
+    };
 
-                if (
-                    savedRAB &&
-                    typeof savedRAB === 'object' &&
-                    Object.keys(savedRAB).length > 0
-                ) {
-                    return savedRAB;
-                }
+    const savedRAB = JSON.parse(
+        localStorage.getItem('kkn_rab')
+    );
 
-                return {
-                    'Sekertaris': 0,
-                    'Bendahara': 0,
-                    'Divisi Acara': 0,
-                    'Divisi Logistik & Transportasi & Transportasi': 0,
-                    'Divisi PDD (Dokumentasi)': 0,
-                    'Divisi Humas & Perizinan': 0,
-                    'Biaya Makan & Minum': 0,
-                    'Lain-lain': 0
-                    };
-            })()
-            
+    if (
+        savedRAB &&
+        typeof savedRAB === 'object' &&
+        Object.keys(savedRAB).length > 0
+    ) {
+        return savedRAB;
+    }
+
+    localStorage.setItem(
+        'kkn_rab',
+        JSON.stringify(defaultRAB)
+    );
+
+    return defaultRAB;
+})()            
         };
 
         let categoryChartInstance = null;
