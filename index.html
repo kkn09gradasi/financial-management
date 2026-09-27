@@ -95,12 +95,14 @@
     }
 
     #laporan-print-area table {
-        page-break-inside: auto;
+    width: 100%;
+    page-break-inside: auto;
+    break-inside: auto;
     }
 
     #laporan-print-area tr {
         page-break-inside: avoid;
-        page-break-after: auto;
+        break-inside: avoid;
     }
 
     #laporan-print-area thead {
@@ -109,6 +111,16 @@
 
     #laporan-print-area tfoot {
         display: table-footer-group;
+    }
+
+    /* Jangan memotong bagian laporan */
+    #laporan-print-area > div {
+        break-inside: auto;
+    }
+
+    /* RAB jangan dipotong di tengah jika memungkinkan */
+    #laporan-print-area table:last-of-type {
+        break-inside: avoid;
     }
 }
     </style>
@@ -365,14 +377,14 @@
                         <option value="ALL">Semua Kategori</option>
                         <option value="Kas Anggota">Kas Anggota</option>
                         <option value="Sponsor/Donatur">Sponsor / Donatur</option>
-                        <option value="Subsidi Universitas">Subsidi Universitas</option>
+                        <option value="Subsidi Pemerintah">Subsidi Pemerintah</option>
                         <option value="Sekertaris">Sekertaris</option>
                         <option value="Bendahara">Bendahara</option>
                         <option value="Divisi Acara">Divisi Acara</option>
-                        <option value="Divisi Logistik">Divisi Logistik & Transportasi</option>
+                        <option value="Divisi Logistik & Transportasi">Divisi Logistik & Transportasi & Transportasi</option>
                         <option value="Divisi PDD (Dokumentasi)">Divisi PDD</option>
-                        <option value="Divisi Humas">Divisi Humas</option>
-                        <option value="Makan">Makan</option>
+                        <option value="Divisi Humas & Perizinan">Divisi Humas & Perizinan</option>
+                        <option value="Biaya Makan & Minum">Biaya Makan & Minum</option>
                         <option value="Lain-lain">Lain-lain</option>
                     </select>
                 </div>
@@ -669,12 +681,54 @@ function getTransactionsData() {
                     </div>
                 </div>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Nominal (Rp) *</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">Rp</span>
-                        <input type="number" id="form-nominal" min="1" required placeholder="0" class="w-full pl-9 pr-3 py-2 text-xs border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none font-semibold">
+                <!-- RINCIAN TRANSAKSI -->
+                <div class="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700">
+                                Rincian Transaksi *
+                            </label>
+                            <p class="text-[10px] text-slate-400 mt-0.5">
+                                Masukkan setiap item secara terpisah
+                            </p>
+                        </div>
+
+                        <button
+                            type="button"
+                            onclick="tambahRincianTransaksi()"
+                            class="px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-[10px] font-bold transition"
+                        >
+                            <i class="fa-solid fa-plus mr-1"></i>
+                            Tambah Rincian
+                        </button>
                     </div>
+
+                    <!-- Header -->
+                    <div class="grid grid-cols-12 gap-2 mb-2 text-[10px] font-bold text-slate-500">
+                        <div class="col-span-4">Nama Item</div>
+                        <div class="col-span-2">Qty</div>
+                        <div class="col-span-2">Satuan</div>
+                        <div class="col-span-3">Harga Satuan</div>
+                        <div class="col-span-1"></div>
+                    </div>
+
+                    <!-- Container rincian -->
+                    <div id="rincian-transaksi-container" class="space-y-2">
+                    </div>
+
+                    <!-- Total -->
+                    <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-600">
+                            Total Transaksi
+                        </span>
+
+                        <div class="text-sm font-extrabold text-brand-600">
+                            Rp <span id="form-total-rincian">0</span>
+                        </div>
+                    </div>
+
+                    <!-- Nilai asli yang disimpan -->
+                    <input type="hidden" id="form-nominal" value="0">
                 </div>
 
                 <div>
@@ -760,9 +814,9 @@ function getTransactionsData() {
                         <option value="Sekertaris">Sekertaris</option>
                         <option value="Bendahara">Bendahara</option>
                         <option value="Divisi Acara">Divisi Acara</option>
-                        <option value="Divisi Logistik">Divisi Logistik</option>
+                        <option value="Divisi Logistik & Transportasi">Divisi Logistik & Transportasi</option>
                         <option value="Divisi PDD">Divisi PDD</option>
-                        <option value="Divisi Humas">Divisi Humas</option>
+                        <option value="Divisi Humas & Perizinan">Divisi Humas & Perizinan</option>
                     </select>
                 </div>
                 <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
@@ -1069,6 +1123,10 @@ function getTransactionsData() {
                                 Keterangan
                             </th>
 
+                            <th class="py-2 px-2 text-left font-bold">
+                                Rincian
+                            </th>
+
                             <th class="py-2 px-2 text-right font-bold w-24">
                                 Pemasukan
                             </th>
@@ -1088,7 +1146,7 @@ function getTransactionsData() {
                         <tr class="border-t-2 border-slate-700 font-bold">
 
                             <td
-                                colspan="4"
+                                colspan="5"
                                 class="py-2 px-2 text-right"
                             >
                                 TOTAL
@@ -1121,7 +1179,7 @@ function getTransactionsData() {
 
                 <h2 class="text-xs font-bold uppercase tracking-wider
                            text-slate-500 border-b border-slate-200 pb-2">
-                    Alokasi RAB
+                    REKAP RAB
                 </h2>
 
                 <table class="w-full mt-3 border-collapse text-[9px]">
@@ -1134,7 +1192,7 @@ function getTransactionsData() {
                             </th>
 
                             <th class="py-2 px-2 text-right font-bold">
-                                Alokasi Anggaran
+                                Total Pengeluaran
                             </th>
 
                         </tr>
@@ -1149,7 +1207,7 @@ function getTransactionsData() {
                         <tr class="border-t-2 border-slate-700 font-bold">
 
                             <td class="py-2 px-2">
-                                TOTAL RAB
+                                TOTAL
                             </td>
 
                             <td
@@ -1195,7 +1253,7 @@ function getTransactionsData() {
 
                     <div class="border-b border-slate-700
                                 w-40 mx-auto pb-1">
-                        Resti
+                        Restiyani
                     </div>
 
                 </div>
@@ -1208,7 +1266,7 @@ function getTransactionsData() {
                 class="mt-10 pt-3 border-t border-slate-200
                        text-[8px] text-slate-400 text-center"
             >
-                Laporan Keuangan KKN GRADASI 2026 · Desa Mekarsari
+                Laporan Keuangan KKN GRADASI 2026 Kelompok 9
             </div>
 
         </div>
@@ -1233,23 +1291,36 @@ function getTransactionsData() {
     { id: 'M-05', nama: 'Resti', divisi: 'Bendahara', payments: [false, false, false, false, false, false] },
     { id: 'M-06', nama: 'Wulan', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
     { id: 'M-07', nama: 'Halin', divisi: 'Divisi Acara', payments: [false, false, false, false, false, false] },
-    { id: 'M-08', nama: 'Tedi Firdaus', divisi: 'Divisi Humas', payments: [false, false, false, false, false, false] },
-    { id: 'M-09', nama: 'Fadli', divisi: 'Divisi Humas', payments: [false, false, false, false, false, false] },
-    { id: 'M-10', nama: 'Abdul Latif', divisi: 'Divisi Logistik', payments: [false, false, false, false, false, false] },
-    { id: 'M-11', nama: 'Asyiefa', divisi: 'Divisi Logistik', payments: [false, false, false, false, false, false] },
+    { id: 'M-08', nama: 'Tedi Firdaus', divisi: 'Divisi Humas & Perizinan', payments: [false, false, false, false, false, false] },
+    { id: 'M-09', nama: 'Fadli', divisi: 'Divisi Humas & Perizinan', payments: [false, false, false, false, false, false] },
+    { id: 'M-10', nama: 'Abdul Latif', divisi: 'Divisi Logistik & Transportasi', payments: [false, false, false, false, false, false] },
+    { id: 'M-11', nama: 'Asyiefa', divisi: 'Divisi Logistik & Transportasi', payments: [false, false, false, false, false, false] },
     { id: 'M-12', nama: 'Adisti', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] },
     { id: 'M-13', nama: 'Muhammad Fauzi', divisi: 'Divisi PDD', payments: [false, false, false, false, false, false] }
 ],
-            rab: JSON.parse(localStorage.getItem('kkn_rab')) || {
-                'Divisi Acara': 0,
-                'Divisi Konsumsi': 0,
-                'Divisi Logistik & Transportasi': 0,
-                'Divisi PDD (Dokumentasi)': 0,
-                'Divisi Humas & Perizinan': 0,
-                'Biaya Makan': 0,
-                'Lain-lain': 0,
-                
-            }
+            rab: (() => {
+                const savedRAB = JSON.parse(localStorage.getItem('kkn_rab'));
+
+                if (
+                    savedRAB &&
+                    typeof savedRAB === 'object' &&
+                    Object.keys(savedRAB).length > 0
+                ) {
+                    return savedRAB;
+                }
+
+                return {
+                    'Sekertaris': 0,
+                    'Bendahara': 0,
+                    'Divisi Acara': 0,
+                    'Divisi Logistik & Transportasi & Transportasi': 0,
+                    'Divisi PDD (Dokumentasi)': 0,
+                    'Divisi Humas & Perizinan': 0,
+                    'Biaya Makan & Minum': 0,
+                    'Lain-lain': 0
+                    };
+            })()
+            
         };
 
         let categoryChartInstance = null;
@@ -1784,6 +1855,9 @@ function handleSaveRAB(e) {
         // --- MODAL HANDLERS ---
         function openModalTransaksi(type) {
             document.getElementById('form-transaksi').reset();
+            document.getElementById('rincian-transaksi-container').innerHTML = '';
+            tambahRincianTransaksi();
+            hitungTotalRincian();
             document.getElementById('form-tipe').value = type;
             document.getElementById('form-tanggal').value = new Date().toISOString().split('T')[0];
             document.getElementById('modal-transaksi-title').innerText = `Tambah Transaksi ${type}`;
@@ -1792,8 +1866,8 @@ function handleSaveRAB(e) {
             const selectCat = document.getElementById('form-kategori');
             selectCat.innerHTML = '';
 
-            const inCats = ['Kas Anggota', 'Sponsor/Donatur', 'Subsidi Universitas', 'Lain-lain'];
-            const outCats = ['Sekertaris','Bendahara','Divisi Acara', 'Divisi Logistik', 'Divisi PDD (Dokumentasi)', 'Divisi Humas', 'Makan', 'Lain-lain'];
+            const inCats = ['Kas Anggota', 'Sponsor/Donatur', 'Subsidi Pemerintah', 'Lain-lain'];
+            const outCats = ['Sekertaris','Bendahara','Divisi Acara', 'Divisi Logistik & Transportasi', 'Divisi PDD (Dokumentasi)', 'Divisi Humas & Perizinan', 'Biaya Makan & Minum', 'Lain-lain'];
 
             const cats = type === 'Pemasukan' ? inCats : outCats;
             cats.forEach(c => {
@@ -1802,14 +1876,169 @@ function handleSaveRAB(e) {
 
             document.getElementById('modal-transaksi').classList.remove('hidden');
         }
+        
+        
 
+        // =====================================================
+        // RINCIAN TRANSAKSI
+        // =====================================================
+
+        function tambahRincianTransaksi() {
+            const container = document.getElementById('rincian-transaksi-container');
+
+            const row = document.createElement('div');
+
+            row.className = 'grid grid-cols-12 gap-2 items-center rincian-transaksi-row';
+
+            row.innerHTML = `
+                <div class="col-span-4">
+                    <input
+                        type="text"
+                        class="rincian-nama w-full px-2.5 py-2 text-[11px] border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        placeholder="Contoh: Spanduk"
+                        required
+                    >
+                </div>
+
+                <div class="col-span-2">
+                    <input
+                        type="number"
+                        class="rincian-qty w-full px-2.5 py-2 text-[11px] border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        value="1"
+                        min="1"
+                        step="0.01"
+                        oninput="hitungTotalRincian()"
+                        required
+                    >
+                </div>
+
+                <div class="col-span-2">
+                    <input
+                        type="text"
+                        class="rincian-satuan w-full px-2.5 py-2 text-[11px] border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        placeholder="pcs"
+                        value="pcs"
+                        required
+                    >
+                </div>
+
+                <div class="col-span-3">
+                    <input
+                        type="number"
+                        class="rincian-harga w-full px-2.5 py-2 text-[11px] border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-500 focus:outline-none"
+                        placeholder="0"
+                        min="0"
+                        oninput="hitungTotalRincian()"
+                        required
+                    >
+                </div>
+
+                <div class="col-span-1 text-center">
+                    <button
+                        type="button"
+                        onclick="hapusRincianTransaksi(this)"
+                        class="w-7 h-7 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 transition"
+                        title="Hapus rincian"
+                    >
+                        <i class="fa-solid fa-trash text-[10px]"></i>
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(row);
+
+            hitungTotalRincian();
+        }
+
+
+        function hapusRincianTransaksi(button) {
+            const container = document.getElementById('rincian-transaksi-container');
+            const rows = container.querySelectorAll('.rincian-transaksi-row');
+
+            // Minimal harus ada satu rincian
+            if (rows.length <= 1) {
+                showToast('Minimal harus ada satu rincian transaksi.', 'error');
+                return;
+            }
+
+            button.closest('.rincian-transaksi-row').remove();
+
+            hitungTotalRincian();
+        }
+
+
+        function hitungTotalRincian() {
+            const rows = document.querySelectorAll('.rincian-transaksi-row');
+
+            let total = 0;
+
+            rows.forEach(row => {
+                const qty = Number(
+                    row.querySelector('.rincian-qty')?.value || 0
+                );
+
+                const harga = Number(
+                    row.querySelector('.rincian-harga')?.value || 0
+                );
+
+                total += qty * harga;
+            });
+
+            document.getElementById('form-total-rincian').innerText =
+                total.toLocaleString('id-ID');
+
+            // Simpan total ke field nominal agar fungsi lama tetap kompatibel
+            document.getElementById('form-nominal').value = total;
+
+            return total;
+        }
+
+
+        function ambilRincianTransaksi() {
+            const rows = document.querySelectorAll('.rincian-transaksi-row');
+
+            const rincian = [];
+
+            rows.forEach(row => {
+                const nama = row.querySelector('.rincian-nama').value.trim();
+                const qty = Number(row.querySelector('.rincian-qty').value || 0);
+                const satuan = row.querySelector('.rincian-satuan').value.trim();
+                const harga = Number(row.querySelector('.rincian-harga').value || 0);
+
+                rincian.push({
+                    nama,
+                    qty,
+                    satuan,
+                    harga,
+                    subtotal: qty * harga
+                });
+            });
+
+            return rincian;
+        }
         function closeModalTransaksi() {
             document.getElementById('modal-transaksi').classList.add('hidden');
         }
 
         function handleSaveTransaksi(e) {
     e.preventDefault();
+    const rincian = ambilRincianTransaksi();
+    const totalRincian = hitungTotalRincian();
 
+    if (rincian.length === 0) {
+        showToast('Minimal harus ada satu rincian transaksi.', 'error');
+        return;
+    }
+
+    if (rincian.some(item => !item.nama || !item.satuan || item.qty <= 0 || item.harga < 0)) {
+        showToast('Lengkapi semua rincian transaksi.', 'error');
+        return;
+    }
+
+    if (totalRincian <= 0) {
+        showToast('Total transaksi harus lebih dari Rp 0.', 'error');
+        return;
+    }
     const tipe = document.getElementById('form-tipe').value;
     const tanggal = document.getElementById('form-tanggal').value;
     const kategori = document.getElementById('form-kategori').value;
@@ -1830,7 +2059,13 @@ function handleSaveRAB(e) {
             kategori,
             keterangan,
             inputor: inputor || 'Bendahara',
-            nominal,
+
+            // Total otomatis dari seluruh rincian
+            nominal: totalRincian,
+
+            // Detail setiap item transaksi
+            rincian: rincian,
+
             bukti: buktiData || ''
         };
 
@@ -2158,36 +2393,73 @@ function renderPreviewLaporan() {
 
             row.className = 'border-b border-slate-100';
 
+            const rincian = Array.isArray(t.rincian)
+                ? t.rincian
+                : [];
+
+            let rincianHTML = '-';
+
+            if (rincian.length > 0) {
+
+                rincianHTML = `
+                    <div class="space-y-1">
+                        ${rincian.map(item => `
+                            <div class="text-[8px] leading-tight">
+                                <span class="font-semibold">
+                                    ${escapeHtmlLaporan(item.nama || '-')}
+                                </span>
+
+                                <span class="text-slate-500">
+                                    ${Number(item.qty) || 0}
+                                    ${escapeHtmlLaporan(item.satuan || '')}
+                                    ×
+                                    ${formatRupiah(Number(item.harga) || 0)}
+                                </span>
+
+                                <span class="font-semibold">
+                                    =
+                                    ${formatRupiah(Number(item.subtotal) || 0)}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
             row.innerHTML = `
-                <td class="py-2 px-2 text-slate-400">
+                <td class="py-2 px-2 text-slate-400 align-top">
                     ${index + 1}
                 </td>
 
-                <td class="py-2 px-2 whitespace-nowrap">
+                <td class="py-2 px-2 whitespace-nowrap align-top">
                     ${formatTanggalSingkat(t.tanggal)}
                 </td>
 
-                <td class="py-2 px-2 font-medium">
+                <td class="py-2 px-2 font-medium align-top">
                     ${escapeHtmlLaporan(t.kategori || '-')}
                 </td>
 
-                <td class="py-2 px-2">
+                <td class="py-2 px-2 align-top">
                     ${escapeHtmlLaporan(t.keterangan || '-')}
                 </td>
 
-                <td class="py-2 px-2 text-right font-medium text-emerald-700">
+                <td class="py-2 px-2 align-top">
+                    ${rincianHTML}
+                </td>
+
+                <td class="py-2 px-2 text-right font-medium text-emerald-700 align-top">
                     ${
                         isMasuk
-                        ? formatRupiah(nominal)
-                        : '-'
+                            ? formatRupiah(nominal)
+                            : '-'
                     }
                 </td>
 
-                <td class="py-2 px-2 text-right font-medium text-rose-700">
+                <td class="py-2 px-2 text-right font-medium text-rose-700 align-top">
                     ${
                         !isMasuk
-                        ? formatRupiah(nominal)
-                        : '-'
+                            ? formatRupiah(nominal)
+                            : '-'
                     }
                 </td>
             `;
@@ -2214,58 +2486,57 @@ function renderPreviewLaporan() {
     // RAB
     // -----------------------------------------
 
-    const rabBody =
-        document.getElementById('laporan-rab-body');
+    // -----------------------------------------
+// RAB - REALISASI PENGELUARAN
+// -----------------------------------------
 
-    rabBody.innerHTML = '';
+const rabBody =
+    document.getElementById('laporan-rab-body');
 
-    let totalRAB = 0;
+rabBody.innerHTML = '';
 
-    Object.entries(state.rab || {}).forEach(
-        ([divisi, nominal]) => {
+let totalRealisasi = 0;
 
-            const nilai = Number(nominal) || 0;
+const realisasiPerDivisi = {};
 
-            totalRAB += nilai;
+state.transactions
+    .filter(t => t.tipe === 'Pengeluaran')
+    .forEach(t => {
 
-            const row = document.createElement('tr');
+        const divisi = t.kategori;
+        const nominal = Number(t.nominal) || 0;
 
-            row.className = 'border-b border-slate-100';
+        realisasiPerDivisi[divisi] =
+            (realisasiPerDivisi[divisi] || 0) + nominal;
 
-            row.innerHTML = `
-                <td class="py-2 px-2">
-                    ${escapeHtmlLaporan(divisi)}
-                </td>
+        totalRealisasi += nominal;
+    });
 
-                <td class="py-2 px-2 text-right font-medium">
-                    ${formatRupiah(nilai)}
-                </td>
-            `;
+Object.keys(state.rab || {}).forEach(divisi => {
 
-            rabBody.appendChild(row);
-        }
-    );
+    const realisasi = realisasiPerDivisi[divisi] || 0;
 
+    const row = document.createElement('tr');
 
-    if (Object.keys(state.rab || {}).length === 0) {
+    row.className = 'border-b border-slate-100';
 
-        rabBody.innerHTML = `
-            <tr>
-                <td
-                    colspan="2"
-                    class="py-5 text-center text-slate-400"
-                >
-                    Belum ada alokasi RAB.
-                </td>
-            </tr>
-        `;
+    row.innerHTML = `
+        <td class="py-2 px-2">
+            ${escapeHtmlLaporan(divisi)}
+        </td>
 
-    }
+        <td class="py-2 px-2 text-right font-medium">
+            ${formatRupiah(realisasi)}
+        </td>
+    `;
 
+    rabBody.appendChild(row);
+});
 
-    document.getElementById('laporan-total-rab').innerText =
-        formatRupiah(totalRAB);
+document.getElementById('laporan-total-rab').innerText =
+    formatRupiah(totalRealisasi);
 }
+
 
 
 // =========================================================
@@ -2322,18 +2593,52 @@ function escapeHtmlLaporan(value) {
         .replace(/'/g, '&#039;');
 }
         function exportCSV() {
-            let csvContent = "data:text/csv;charset=utf-8,ID,Tanggal,Tipe,Kategori,Keterangan,Inputor,Nominal\n";
+
+            let csvContent =
+                "ID,Tanggal,Tipe,Kategori,Keterangan,Rincian,Inputor,Nominal\n";
+
             state.transactions.forEach(t => {
-                csvContent += `"${t.id}","${t.tanggal}","${t.tipe}","${t.kategori}","${t.keterangan}","${t.inputor}",${t.nominal}\n`;
+
+                const rincianText = (t.rincian || []).map(item => {
+                    return `${item.nama} (${item.qty} ${item.satuan} x ${item.harga} = ${item.subtotal})`;
+                }).join(" | ");
+
+                const row = [
+                    t.id || '',
+                    t.tanggal || '',
+                    t.tipe || '',
+                    t.kategori || '',
+                    t.keterangan || '',
+                    rincianText || '-',
+                    t.inputor || '',
+                    Number(t.nominal) || 0
+                ];
+
+                csvContent += row.map(value => {
+                    return `"${String(value)
+                        .replace(/"/g, '""')}"`;
+                }).join(',') + '\n';
             });
 
-            const encodedUri = encodeURI(csvContent);
+            const encodedUri =
+                'data:text/csv;charset=utf-8,' +
+                encodeURIComponent(csvContent);
+
             const link = document.createElement("a");
+
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Laporan_Keuangan_KKN_GRADASI_2026.csv`);
+
+            link.setAttribute(
+                "download",
+                `Laporan_Keuangan_KKN_GRADASI_2026.csv`
+            );
+
             document.body.appendChild(link);
+
             link.click();
+
             document.body.removeChild(link);
+
             showToast('Laporan CSV diunduh');
         }
 
