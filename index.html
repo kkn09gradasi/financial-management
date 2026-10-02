@@ -1553,51 +1553,74 @@ function getTransactionsData() {
         // Semua data utama disimpan di Firestore, bukan localStorage.
         // =========================================================
         async function loadData() {
-            try {
-                const ref = db.doc(KKN_DOC_PATH);
-                const snap = await ref.get();
+    try {
+        const ref = db.doc(KKN_DOC_PATH);
+        const snap = await ref.get();
 
-                if (snap.exists) {
-                    const data = snap.data() || {};
+        // Jika dokumen Firebase BELUM ADA,
+        // JANGAN otomatis membuat/menyimpan data 0.
+        if (!snap.exists) {
+            console.warn('Dokumen Firebase belum ditemukan:', KKN_DOC_PATH);
 
-                    state.transactions = Array.isArray(data.transactions)
-                        ? data.transactions
-                        : [];
+            showToast(
+                'Data Firebase belum ditemukan. Tidak dilakukan reset.',
+                'error'
+            );
 
-                    state.members = Array.isArray(data.members) && data.members.length
-                        ? data.members
-                        : structuredClone(DEFAULT_MEMBERS);
-
-                    state.rab = data.rab && typeof data.rab === 'object'
-                        ? { ...DEFAULT_RAB, ...data.rab }
-                        : { ...DEFAULT_RAB };
-
-                    // Pastikan array pembayaran selalu 16 minggu.
-                    state.members = state.members.map(member => ({
-                        ...member,
-                        payments: Array.from(
-                            { length: TOTAL_WEEKS },
-                            (_, i) => Boolean(member.payments?.[i])
-                        )
-                    }));
-
-                    return;
-                }
-
-                // Dokumen belum ada: buat data awal di Firebase.
-                state = {
-                    transactions: [],
-                    members: structuredClone(DEFAULT_MEMBERS),
-                    rab: { ...DEFAULT_RAB }
-                };
-
-                await saveData();
-            } catch (error) {
-                console.error('Firebase loadData error:', error);
-                showToast('Gagal mengambil data dari Firebase.', 'error');
-                throw error;
-            }
+            return;
         }
+
+        const data = snap.data() || {};
+
+        // ==============================
+        // TRANSAKSI
+        // ==============================
+        if (Array.isArray(data.transactions)) {
+            state.transactions = data.transactions;
+        } else {
+            state.transactions = [];
+        }
+
+        // ==============================
+        // ANGGOTA
+        // ==============================
+        if (Array.isArray(data.members) && data.members.length > 0) {
+            state.members = data.members.map(member => ({
+                ...member,
+                payments: Array.from(
+                    { length: TOTAL_WEEKS },
+                    (_, i) => Boolean(member.payments?.[i])
+                )
+            }));
+        }
+
+        // ==============================
+        // RAB
+        // ==============================
+        if (data.rab && typeof data.rab === 'object') {
+            state.rab = {
+                ...DEFAULT_RAB,
+                ...data.rab
+            };
+        }
+
+        console.log('Data berhasil dimuat dari Firebase:', {
+            transactions: state.transactions.length,
+            members: state.members.length,
+            rab: state.rab
+        });
+
+    } catch (error) {
+        console.error('Firebase loadData error:', error);
+
+        showToast(
+            'Gagal mengambil data Firebase. Data tidak di-reset.',
+            'error'
+        );
+
+        throw error;
+    }
+}
 
         async function saveData() {
             try {
