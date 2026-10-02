@@ -146,45 +146,121 @@
             </div>
             <div class="p-6 space-y-4">
                 <!-- Pilihan Peran -->
-                <div id="login-role-select" class="space-y-3">
-                    <button type="button" onclick="selectLoginRole('bendahara')" class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-brand-500 hover:bg-brand-50 transition text-left">
-                        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-key"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-sm text-slate-800">Masuk sebagai Bendahara</p>
-                            <p class="text-xs text-slate-500">Akses penuh &middot; memerlukan PIN</p>
-                        </div>
-                    </button>
-                    <button type="button" onclick="loginAsAnggota()" class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition text-left">
-                        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-users"></i>
-                        </div>
-                        <div>
-                            <p class="font-bold text-sm text-slate-800">Masuk sebagai Anggota</p>
-                            <p class="text-xs text-slate-500">Tanpa PIN &middot; akses terbatas</p>
-                        </div>
-                    </button>
-                </div>
+                <!-- Pilihan Login -->
+<div id="login-role-select" class="space-y-3">
 
-                <!-- Form PIN Bendahara -->
-                <form id="login-pin-form" onsubmit="submitBendaharaPin(event)" class="hidden space-y-3">
-                    <button type="button" onclick="backToRoleSelect()" class="text-xs text-slate-500 hover:text-slate-700 flex items-center gap-1.5 font-medium">
-                        <i class="fa-solid fa-arrow-left"></i> Kembali
-                    </button>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Masukkan PIN Bendahara</label>
-                        <input type="password" id="login-pin-input" inputmode="numeric" autocomplete="off" required
-                            class="w-full px-4 py-3 text-center tracking-[0.5em] text-lg border border-slate-300 rounded-xl focus:ring-2 focus:ring-brand-500 focus:outline-none"
-                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;">
-                    </div>
-                    <p id="login-pin-error" class="text-xs text-rose-600 font-semibold hidden">
-                        <i class="fa-solid fa-circle-exclamation"></i> PIN salah. Silakan coba lagi.
-                    </p>
-                    <button type="submit" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-sm font-semibold transition">
-                        <i class="fa-solid fa-right-to-bracket"></i> Masuk
-                    </button>
-                </form>
+    <!-- Bendahara -->
+    <button
+        type="button"
+        onclick="selectLoginRole('bendahara')"
+        class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200
+               hover:border-brand-500 hover:bg-brand-50 transition text-left">
+
+        <div class="w-10 h-10 rounded-lg bg-brand-100 text-brand-700
+                    flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-user-shield"></i>
+        </div>
+
+        <div>
+            <p class="font-bold text-sm text-slate-800">
+                Masuk sebagai Bendahara
+            </p>
+
+            <p class="text-xs text-slate-500">
+                Akses penuh · Email & Password
+            </p>
+        </div>
+    </button>
+
+
+    <!-- Anggota -->
+    <button
+        type="button"
+        onclick="loginAsAnggota()"
+        class="w-full flex items-center gap-3 p-4 rounded-xl border-2 border-slate-200
+               hover:border-emerald-500 hover:bg-emerald-50 transition text-left">
+
+        <div class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700
+                    flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-users"></i>
+        </div>
+
+        <div>
+            <p class="font-bold text-sm text-slate-800">
+                Masuk sebagai Anggota
+            </p>
+
+            <p class="text-xs text-slate-500">
+                Tanpa login · Akses terbatas
+            </p>
+        </div>
+    </button>
+
+</div>
+
+
+<!-- Form Login Bendahara -->
+<form
+    id="login-bendahara-form"
+    onsubmit="submitBendaharaLogin(event)"
+    class="hidden space-y-4">
+
+    <button
+        type="button"
+        onclick="backToRoleSelect()"
+        class="text-xs text-slate-500 hover:text-slate-700
+               flex items-center gap-1.5 font-medium">
+
+        <i class="fa-solid fa-arrow-left"></i>
+        Kembali
+    </button>
+
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">
+            Email Bendahara
+        </label>
+
+        <input
+            type="email"
+            id="login-email"
+            required
+            autocomplete="email"
+            class="w-full px-4 py-3 border border-slate-300 rounded-xl
+                   focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            placeholder="Email bendahara">
+    </div>
+
+    <div>
+        <label class="block text-xs font-semibold text-slate-600 mb-1">
+            Password
+        </label>
+
+        <input
+            type="password"
+            id="login-password"
+            required
+            autocomplete="current-password"
+            class="w-full px-4 py-3 border border-slate-300 rounded-xl
+                   focus:ring-2 focus:ring-brand-500 focus:outline-none"
+            placeholder="Password">
+    </div>
+
+    <p id="login-auth-error"
+       class="hidden text-xs text-rose-600 font-semibold">
+        Email atau password salah.
+    </p>
+
+    <button
+        type="submit"
+        id="btn-login-bendahara"
+        class="w-full py-3 bg-brand-600 hover:bg-brand-700
+               text-white rounded-xl text-sm font-semibold transition">
+
+        <i class="fa-solid fa-right-to-bracket mr-1"></i>
+        Masuk sebagai Bendahara
+    </button>
+
+</form>
             </div>
         </div>
     </div>
@@ -1362,6 +1438,7 @@ function getTransactionsData() {
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 
     <script>
         // =========================================================
@@ -1380,6 +1457,7 @@ function getTransactionsData() {
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const storage = firebase.storage();
+        const auth = firebase.auth();
 
         const KKN_DOC_PATH = "kkn_gradasi/keuangan_2026";
 
@@ -1423,13 +1501,6 @@ function getTransactionsData() {
         let categoryChartInstance = null;
         let expenseChartInstance = null;
 
-        // =========================================================
-        // AUTENTIKASI & HAK AKSES (BENDAHARA vs ANGGOTA)
-        // =========================================================
-        // GANTI PIN INI SESUAI KEINGINAN ANDA (proteksi ini hanya di sisi
-        // tampilan/klien, bukan keamanan server yang sesungguhnya).
-        const BENDAHARA_PIN = "260926";
-
         const ROLE_PERMISSIONS = {
             bendahara: {
                 canAddTransaksi: true,
@@ -1458,55 +1529,106 @@ function getTransactionsData() {
             return currentRole === 'bendahara';
         }
 
-        function selectLoginRole(role) {
-            if (role === 'bendahara') {
-                document.getElementById('login-role-select').classList.add('hidden');
-                document.getElementById('login-pin-form').classList.remove('hidden');
-                document.getElementById('login-pin-error').classList.add('hidden');
-                document.getElementById('login-pin-input').value = '';
-                document.getElementById('login-pin-input').focus();
-            }
-        }
-
         function backToRoleSelect() {
-            document.getElementById('login-pin-form').classList.add('hidden');
-            document.getElementById('login-role-select').classList.remove('hidden');
-        }
+    document.getElementById('login-bendahara-form').classList.add('hidden');
+    document.getElementById('login-role-select').classList.remove('hidden');
 
-        function submitBendaharaPin(e) {
-            e.preventDefault();
-            const pin = document.getElementById('login-pin-input').value.trim();
+    document.getElementById('login-auth-error').classList.add('hidden');
+}
 
-            if (pin === BENDAHARA_PIN) {
-                doLogin('bendahara');
-            } else {
-                document.getElementById('login-pin-error').classList.remove('hidden');
-                document.getElementById('login-pin-input').value = '';
-                document.getElementById('login-pin-input').focus();
-            }
-        }
+    
 
         function loginAsAnggota() {
-            doLogin('anggota');
-        }
+    currentRole = 'anggota';
 
-        function doLogin(role) {
-            currentRole = role;
-            localStorage.setItem('kkn_role', role);
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-shell').classList.remove('hidden');
-            applyRolePermissions();
-            startApp();
-        }
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-shell').classList.remove('hidden');
 
-        function logoutUser() {
-            currentRole = null;
-            localStorage.removeItem('kkn_role');
-            document.getElementById('app-shell').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('login-pin-form').classList.add('hidden');
-            document.getElementById('login-role-select').classList.remove('hidden');
+    applyRolePermissions();
+    startApp();
+}
+
+    function selectLoginRole(role) {
+    if (role === 'bendahara') {
+        document.getElementById('login-role-select').classList.add('hidden');
+        document.getElementById('login-bendahara-form').classList.remove('hidden');
+
+        document.getElementById('login-auth-error').classList.add('hidden');
+        document.getElementById('login-email').value = '';
+        document.getElementById('login-password').value = '';
+        document.getElementById('login-email').focus();
+    }
+}
+
+async function submitBendaharaLogin(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    const errorBox = document.getElementById('login-auth-error');
+    const loginButton = document.getElementById('btn-login-bendahara');
+
+    errorBox.classList.add('hidden');
+
+    loginButton.disabled = true;
+    loginButton.innerHTML = `
+        <i class="fa-solid fa-spinner fa-spin mr-1"></i>
+        Memeriksa...
+    `;
+
+    try {
+        await auth.signInWithEmailAndPassword(email, password);
+
+        currentRole = 'bendahara';
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('app-shell').classList.remove('hidden');
+
+        applyRolePermissions();
+        await startApp();
+
+    } catch (error) {
+        console.error('Login Firebase gagal:', error);
+
+        errorBox.textContent = 'Email atau password salah.';
+        errorBox.classList.remove('hidden');
+
+        document.getElementById('login-password').value = '';
+
+    } finally {
+        loginButton.disabled = false;
+
+        loginButton.innerHTML = `
+            <i class="fa-solid fa-right-to-bracket mr-1"></i>
+            Masuk sebagai Bendahara
+        `;
+    }
+}
+
+
+
+        async function logoutUser() {
+    try {
+        if (auth.currentUser) {
+            await auth.signOut();
         }
+    } catch (error) {
+        console.error('Logout Firebase gagal:', error);
+    }
+
+    currentRole = null;
+
+    document.getElementById('app-shell').classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+
+    document.getElementById('login-bendahara-form').classList.add('hidden');
+    document.getElementById('login-role-select').classList.remove('hidden');
+
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-auth-error').classList.add('hidden');
+}
 
         function applyRolePermissions() {
             const badge = document.getElementById('role-badge');
@@ -2995,19 +3117,35 @@ function escapeHtmlLaporan(value) {
             showToast('Kode Google Apps Script disalin!');
         }
 
-        // Initial Load: cek sesi login (peran) sebelum memuat data aplikasi
         window.addEventListener('DOMContentLoaded', () => {
-            const savedRole = localStorage.getItem('kkn_role');
 
-            if (savedRole === 'bendahara' || savedRole === 'anggota') {
-                currentRole = savedRole;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('app-shell').classList.remove('hidden');
-                applyRolePermissions();
-                startApp();
-            }
-            // Jika belum ada sesi, layar login (default tampil) menunggu pilihan peran.
-        });
+    auth.onAuthStateChanged(async (user) => {
+
+        if (user) {
+            // User Firebase = Bendahara
+            currentRole = 'bendahara';
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app-shell').classList.remove('hidden');
+
+            applyRolePermissions();
+
+            await startApp();
+
+        } else {
+            // Tidak login Firebase.
+            // Tampilan login tetap muncul.
+            currentRole = null;
+
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('app-shell').classList.add('hidden');
+        }
+
+    });
+
+});
+
+
         async function downloadLaporanPDF() {
 
     const element = document.getElementById('laporan-print-area');
